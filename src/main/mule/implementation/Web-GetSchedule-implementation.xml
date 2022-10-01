@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="Web-FastGo-GetSchedule-implementationSub_Flow" doc:id="218b8047-cb28-4a08-9b6e-e76859cba3e0" >
+		<http:request method="GET" doc:name="Request " doc:id="5c23aac3-844b-4ef2-8f16-7dced8389597" config-ref="HTTP_Request_configuration_FastGo" path="${http.requester.FastGo.routespath}"/>
+		<ee:transform doc:name="Transform Message" doc:id="4946dd19-ccd2-4957-b10a-bb6411925f68" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="Web-TravelOnTip-GetSchedule-implementationSub_Flow1" doc:id="12957805-232f-4d53-85e9-19c19c9bcfdf" >
+		<http:request method="GET" doc:name="Request" doc:id="a097747b-cc17-47c8-882d-974d521686e9" config-ref="HTTP_Request_configuration_TravelOnTip" path="${http.requester.TravelOnTip.schedulespath}"/>
+		<ee:transform doc:name="Transform Message" doc:id="b462ef6b-8393-4842-8d67-f3ba0a602e51" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<flow name="Choice-Web-GetSchedule-implementationFlow" doc:id="288e1b5b-3d1d-409f-89c0-d7f9d9fe22c4" >
+		<choice doc:name="Choice" doc:id="b519b7a9-5c6b-45e6-824f-36fd937ac96c" >
+			<when expression='#[vars.companyName=="FastGo"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="40ae71d0-3b01-465a-b4cd-39ba695b75d4" name="Web-FastGo-GetSchedule-implementationSub_Flow"/>
+			</when>
+			<when expression='#[vars.companyName=="TravelOnTip"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="45b0cbea-8125-4e99-9aa1-c8c5ceb7626c" name="Web-TravelOnTip-GetSchedule-implementationSub_Flow1"/>
+			</when>
+			<otherwise >
+				<scatter-gather doc:name="Scatter-Gather" doc:id="7bf69739-dd0d-4c18-8cf2-ef55ede0e0d5" >
+					<route >
+						<flow-ref doc:name="Flow Reference" doc:id="f228bf09-6e64-443e-bee3-450590713778" name="Web-FastGo-GetSchedule-implementationSub_Flow"/>
+					</route>
+					<route >
+						<flow-ref doc:name="Flow Reference" doc:id="8faf7dbf-b721-4e47-b175-a6f8d729f725" name="Web-TravelOnTip-GetSchedule-implementationSub_Flow1"/>
+					</route>
+				</scatter-gather>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

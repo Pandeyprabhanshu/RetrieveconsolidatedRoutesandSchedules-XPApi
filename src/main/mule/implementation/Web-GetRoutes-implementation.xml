@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="Web-GetRoutes-implementationSub_Flow" doc:id="1c30ccbd-8a78-4027-8244-59814504866d" >
+		<http:request method="GET" doc:name="Request" doc:id="dad3e57b-8cf4-4990-aad8-fe53b275c2ed" config-ref="HTTP_Request_configuration_FastGo" path="${http.requester.FastGo.routespath}"/>
+		<ee:transform doc:name="Transform Message" doc:id="eba6b149-8a44-434b-a8ab-6506f86adad4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="Web-GetRoutes-implementationSub_Flow1" doc:id="77acd3e0-d301-4c43-a721-2acbefb5a093" >
+		<http:request method="GET" doc:name="Request" doc:id="325035fe-5a7a-4a1e-bc0e-868ce204ca6d" config-ref="HTTP_Request_configuration_TravelOnTip" path="${http.requester.TravelOnTip.schedulespath}"/>
+		<ee:transform doc:name="Transform Message" doc:id="c7d7b66a-830b-454b-a7bb-8cfb920226cb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<flow name="choice-Web-GetRoutes-implementationFlow" doc:id="e2a1a95d-7223-4cc8-9107-75f3a3ffff2e" >
+		<choice doc:name="Choice" doc:id="9b5e1853-c03b-4215-8e3a-4d1e6921f863" >
+			<when expression='#[vars.companyName=="FastGo"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="a2894410-e519-4f91-8dc4-3af7a0c8b464" name="Web-GetRoutes-implementationSub_Flow"/>
+			</when>
+			<when expression='#[vars.companyName=="TravelOnTip"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="f3f1bc3a-b121-48ec-83c4-43cc14fb07f5" name="Web-GetRoutes-implementationSub_Flow1"/>
+			</when>
+			<otherwise >
+				<scatter-gather doc:name="Scatter-Gather" doc:id="7dd9a6e2-92fa-45fa-b28d-727e62da7da9" >
+					<route >
+						<flow-ref doc:name="Flow Reference" doc:id="7d479cb9-9226-42fd-9719-4472d3106e3a" name="Web-GetRoutes-implementationSub_Flow"/>
+					</route>
+					<route >
+						<flow-ref doc:name="Flow Reference" doc:id="bf874bc5-e89a-44de-85b9-0b0f86ba5ed3" name="Web-GetRoutes-implementationSub_Flow1"/>
+					</route>
+				</scatter-gather>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
